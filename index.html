@@ -1305,15 +1305,28 @@ function updateApiPanelVisibility() {
   const apiKeyNotice = document.getElementById('apiKeyNotice');
   
   if (isVercel) {
-    // Vercel 环境：隐藏 API Key 输入，使用服务端配置
+    // Vercel 环境：默认隐藏 API Key 输入
+    // 如果后端 API 失败，用户可以手动开启前端直连
     apiKeyGroup.style.display = 'none';
-    apiKeyNotice.innerHTML = '✅ 当前使用服务端 API Key，无需配置';
+    apiKeyNotice.innerHTML = '✅ 当前使用服务端 API Key<br><a href="#" onclick="enableDirectMode()" style="color:var(--primary)">如果出错，点击切换到本地模式</a>';
   } else {
     // 本地/静态环境：需要用户填写 API Key
     apiKeyGroup.style.display = 'block';
     apiKeyTip.textContent = '(本地使用需填写)';
     apiKeyNotice.innerHTML = '🔒 API Key 仅存储在本地浏览器';
   }
+}
+
+// 手动开启前端直连模式
+function enableDirectMode() {
+  const apiKeyGroup = document.getElementById('apiKeyGroup');
+  const apiKeyTip = document.getElementById('apiKeyTip');
+  const apiKeyNotice = document.getElementById('apiKeyNotice');
+  apiKeyGroup.style.display = 'block';
+  apiKeyTip.textContent = '(请填写你的 API Key)';
+  apiKeyNotice.innerHTML = '⚠️ 前端直连模式，API Key 会存储在浏览器中';
+  document.getElementById('apiKey').focus();
+  showToast('请在下方的输入框中填写你的 API Key', 'info');
 }
 
 // ============================================================
@@ -1462,12 +1475,12 @@ const API_CONFIGS = {
   qwen:     { name: '通义千问', model: 'qwen-plus' }
 };
 
-// 检测是否在 Vercel 环境（有后端 API）
+// 检测是否在 Vercel 环境
 const isVercelEnv = () => {
-  return window.location.hostname.includes('vercel.app') || 
-         window.location.hostname.includes('localhost') === false;
+  return window.location.hostname.includes('vercel.app');
 };
 
+// API 调用
 async function callAI(prompt, systemPrompt, onChunk) {
   const messages = [
     { role: 'system', content: systemPrompt },
@@ -1476,22 +1489,40 @@ async function callAI(prompt, systemPrompt, onChunk) {
 
   try {
     let resp;
+    let useDirectMode = false;
     
-    // 方式1：Vercel 后端代理（推荐，API Key 安全）
+    // Vercel 环境：优先使用后端代理
     if (isVercelEnv()) {
-      resp = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          provider: state.apiProvider,
-          messages,
-          temperature: 0.7,
-          max_tokens: 3000
-        })
-      });
-    } 
-    // 方式2：前端直连（本地开发或静态部署，需要用户填 Key）
-    else {
+      try {
+        resp = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            provider: state.apiProvider,
+            messages,
+            temperature: 0.7,
+            max_tokens: 3000
+          })
+        });
+        
+        // 如果返回 500 错误（API Key 未配置），降级到前端直连
+        if (resp.status === 500) {
+          const err = await resp.json().catch(() => ({}));
+          if (err.error && err.error.includes('not configured')) {
+            showToast('服务端 API 未配置，将使用本地模式', 'warning');
+            useDirectMode = true;
+          }
+        }
+      } catch (e) {
+        // 网络错误，降级到前端直连
+        useDirectMode = true;
+      }
+    } else {
+      useDirectMode = true;
+    }
+    
+    // 前端直连模式（需要用户填写 API Key）
+    if (useDirectMode || !isVercelEnv()) {
       if (!state.apiKey) {
         showToast('请先在左侧配置 API Key', 'error');
         return null;
