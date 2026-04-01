@@ -1,0 +1,24 @@
+{
+  "name": "xiaochengzi-hr",
+  "version": "1.0.0",
+  "description": "小橙子招聘助手 - AI驱动的智能招聘平台",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "keywords": [
+    "HR",
+    "招聘",
+    "AI",
+    "DeepSeek",
+    "豆包",
+    "人才画像",
+    "面试题库",
+    "JD生成"
+  ],
+  "author": "新宏程集团",
+  "license": "MIT",
+  "devDependencies": {
+    "vercel": "^37.0.0"
+  }
+}

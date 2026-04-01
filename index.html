@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>小橙子招聘助手 - AI驱动的智能招聘平台</title>
+  <meta name="description" content="新宏程集团小橙子招聘助手 - 岗位JD生成、面试题库、人才画像，AI一键搞定" />
+  
+  <style>
+    /* ===== 橙色系主题变量 ===== */
+    :root {
+      --primary: #FF8C42;
+      --primary-light: #FFF3E0;
+      --primary-dark: #E67E22;
+      --secondary: #FF9F5A;
+      --accent: #FFA500;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --error: #EF4444;
+      --bg: #FFFBF6;
+      --surface: #FFFFFF;
+      --border: #FFE4CC;
+      --text-primary: #2D1810;
+      --text-secondary: #8B6F47;
+      --text-muted: #B8956A;
+      --shadow-sm: 0 1px 3px rgba(255,140,66,0.08);
+      --shadow-md: 0 4px 20px rgba(255,140,66,0.12);
+      --shadow-lg: 0 8px 40px rgba(255,140,66,0.16);
+      --radius: 12px;
+      --radius-lg: 20px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, #FFFBF6 0%, #FFF8F0 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* ===== 顶部导航 ===== */
+    .navbar {
+      background: var(--surface);
+      border-bottom: 2px solid var(--border);
+      padding: 0 32px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #FF8C42, #FFA500);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 2px 8px rgba(255,140,66,0.2);
+      transform: scale(1);
+      transition: transform 0.2s;
+    }
+
+    .navbar-brand:hover .brand-icon { transform: scale(1.05) rotate(5deg); }
+
+    .brand-name {
+      font-size: 20px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #FF8C42, #E67E22);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
+    }
+
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* ===== 主布局 ===== */
+    .main-container {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 32px 24px;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 28px;
+      min-height: calc(100vh - 64px);
+    }
+
+    /* ===== 左侧边栏 ===== */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .sidebar-section {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: var(--shadow-sm);
+      border: 1.5px solid var(--border);
+      transition: all 0.2s;
+    }
+
+    .sidebar-section:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-md);
+    }
+
+    .sidebar-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+      color: var(--text-secondary);
+      border: 2px solid transparent;
+      font-weight: 500;
+    }
+
+    .nav-item:hover {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .nav-item.active {
+      background: linear-gradient(135deg, #FFF3E0, #FFE8CC);
+      color: var(--primary-dark);
+      border-color: var(--primary);
+      font-weight: 700;
+      box-shadow: inset 0 0 0 1px var(--primary);
+    }
+
+    .nav-icon {
+      font-size: 20px;
+      width: 32px;
+      text-align: center;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      background: linear-gradient(135deg, #FF8C42, #FFA500);
+      color: white;
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 700;
+    }
+
+    /* API 配置面板 */
+    .api-panel {
+      background: linear-gradient(135deg, #FFFBF6, #FFF3E0);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .api-panel-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+
+    .api-form-group {
+      margin-bottom: 11px;
+    }
+
+    .api-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 5px;
+      display: block;
+      font-weight: 600;
+    }
+
+    .api-input, .api-select {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: inherit;
+      color: var(--text-primary);
+      background: white;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .api-input:focus, .api-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(255,140,66,0.1);
+    }
+
+    .save-api-btn {
+      width: 100%;
+      padding: 9px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+
+    .save-api-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* 统计卡片 */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #FFF8F0, #FFFBF6);
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+
+    .stat-card:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stat-number {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #FF8C42, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 5px;
+      font-weight: 600;
+    }
+
+    /* ===== 右侧主内容 ===== */
+    .content-area {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* 欢迎横幅 */
+    .hero-banner {
+      background: linear-gradient(135deg, #FF8C42 0%, #FFA500 50%, #FF9F5A 100%);
+      border-radius: var(--radius-lg);
+      padding: 36px 40px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .hero-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 350px;
+      height: 350px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 50%;
+    }
+
+    .hero-banner::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: 10%;
+      width: 250px;
+      height: 250px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 50%;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-emoji {
+      font-size: 32px;
+      margin-bottom: 8px;
+      display: inline-block;
+    }
+
+    .hero-title {
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    .hero-desc {
+      font-size: 15px;
+      opacity: 0.92;
+      line-height: 1.7;
+      max-width: 600px;
+      font-weight: 500;
+    }
+
+    .hero-tags {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    .hero-tag {
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(8px);
+      padding: 6px 16px;
+      border-radius: 24px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+
+    /* ===== 功能卡片区 ===== */
+    .module-panel {
+      display: none;
+    }
+
+    .module-panel.active {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .panel-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #FF8C42, #FFA500);
+      box-shadow: 0 4px 12px rgba(255,140,66,0.2);
+    }
+
+    .panel-title-wrap h2 {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .panel-title-wrap p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 3px;
+      font-weight: 500;
+    }
+
+    /* 表单卡片 */
+    .form-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      box-shadow: var(--shadow-sm);
+      border: 1.5px solid var(--border);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    .form-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .form-label .required {
+      color: var(--error);
+      margin-left: 2px;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text-primary);
+      background: var(--primary-light);
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--primary);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(255,140,66,0.1);
+    }
+
+    .form-select {
+      appearance: none;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23FF8C42' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 90px;
+      line-height: 1.6;
+    }
+
+    /* 标签选择器 */
+    .tag-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tag-option {
+      padding: 7px 16px;
+      border-radius: 22px;
+      border: 1.5px solid var(--border);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-secondary);
+      user-select: none;
+      font-weight: 600;
+      background: white;
+    }
+
+    .tag-option:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .tag-option.selected {
+      background: linear-gradient(135deg, #FFF3E0, #FFE8CC);
+      border-color: var(--primary);
+      color: var(--primary-dark);
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(255,140,66,0.15);
+    }
+
+    /* 生成按钮 */
+    .generate-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(255,140,66,0.25);
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(255,140,66,0.35);
+    }
+
+    .generate-btn:active {
+      transform: translateY(0);
+    }
+
+    .generate-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* 加载动画 */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== 结果展示区 ===== */
+    .result-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      display: none;
+      flex-direction: column;
+    }
+
+    .result-card.visible { display: flex; }
+
+    .result-header {
+      padding: 18px 24px;
+      border-bottom: 1.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, #FFFBF6, #FFF8F0);
+    }
+
+    .result-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .result-badge {
+      background: linear-gradient(135deg, #10B981, #059669);
+      color: white;
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-weight: 700;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .action-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid var(--border);
+      background: white;
+      color: var(--text-secondary);
+      font-family: inherit;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .action-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .action-btn.primary {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .action-btn.primary:hover {
+      background: linear-gradient(135deg, var(--primary-dark), #FF7A2F);
+      border-color: var(--primary-dark);
+    }
+
+    .result-body {
+      padding: 26px;
+      flex: 1;
+    }
+
+    .result-content {
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--text-primary);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* 首页模块选择卡片 */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px 22px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+    }
+
+    .feature-card:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-6px);
+    }
+
+    .feature-card-icon {
+      font-size: 42px;
+      margin-bottom: 14px;
+    }
+
+    .feature-card-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .feature-card-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+
+    .feature-card-tag {
+      display: inline-block;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #FFF3E0, #FFE8CC);
+      color: var(--primary-dark);
+    }
+
+    /* ===== Toast 提示 ===== */
+    .toast-container {
+      position: fixed;
+      top: 84px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      background: var(--text-primary);
+      color: white;
+      padding: 13px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      box-shadow: var(--shadow-lg);
+      animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.5s forwards;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--error); }
+    .toast.warning { background: var(--warning); }
+
+    @keyframes slideIn {
+      from { transform: translateX(100px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; pointer-events: none; }
+    }
+
+    /* 历史记录 */
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .history-item {
+      padding: 11px 13px;
+      background: var(--primary-light);
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .history-item:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .history-item-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-item-meta {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .loading-overlay {
+      display: none;
+      padding: 48px 24px;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .loading-overlay.visible { display: flex; }
+
+    .loading-ring {
+      width: 48px;
+      height: 48px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .loading-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .loading-dots::after {
+      content: '';
+      animation: dots 1.5s steps(4, end) infinite;
+    }
+
+    @keyframes dots {
+      0%   { content: ''; }
+      25%  { content: '.'; }
+      50%  { content: '..'; }
+      75%  { content: '...'; }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-state-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state-text { font-size: 14px; line-height: 1.6; }
+
+    /* ===== 响应式 ===== */
+    @media (max-width: 1024px) {
+      .feature-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 900px) {
+      .main-container { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .navbar { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Toast 容器 -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- 顶部导航 -->
+<nav class="navbar">
+  <div style="display:flex;align-items:center;gap:8px">
+    <a class="navbar-brand" href="#">
+      <div class="brand-icon">🍊</div>
+      <span class="brand-name">小橙子招聘助手</span>
+    </a>
+  </div>
+  <div class="navbar-right">
+    <span style="font-size:13px;color:var(--text-secondary);font-weight:500">🍊 新宏程集团出品</span>
+  </div>
+</nav>
+
+<!-- 主容器 -->
+<div class="main-container">
+
+  <!-- 左侧边栏 -->
+  <aside class="sidebar">
+    <!-- 功能导航 -->
+    <div class="sidebar-section">
+      <div class="sidebar-title">🎯 功能模块</div>
+      <div class="nav-item active" onclick="switchModule('home', this)">
+        <span class="nav-icon">🏠</span> 功能总览
+      </div>
+      <div class="nav-item" onclick="switchModule('jd', this)">
+        <span class="nav-icon">📄</span> 岗位JD生成
+        <span class="nav-badge">热门</span>
+      </div>
+      <div class="nav-item" onclick="switchModule('interview', this)">
+        <span class="nav-icon">❓</span> 面试题库
+      </div>
+      <div class="nav-item" onclick="switchModule('portrait', this)">
+        <span class="nav-icon">👤</span> 人才画像
+      </div>
+    </div>
+
+    <!-- API 配置 -->
+    <div class="api-panel" id="apiPanel">
+      <div class="api-panel-title">🔑 AI 模型选择</div>
+      <div class="api-form-group">
+        <label class="api-label">选择模型</label>
+        <select class="api-select" id="apiProvider" onchange="updateApiPlaceholder()">
+          <option value="deepseek">DeepSeek（推荐）</option>
+          <option value="doubao">豆包（字节跳动）</option>
+          <option value="zhipu">智谱 GLM-4</option>
+          <option value="moonshot">月之暗面 Kimi</option>
+          <option value="qwen">通义千问</option>
+        </select>
+      </div>
+      <div class="api-form-group" id="apiKeyGroup">
+        <label class="api-label">API Key <span id="apiKeyTip" style="font-size:11px;color:var(--text-muted)">(线上版无需填写)</span></label>
+        <input type="password" class="api-input" id="apiKey" placeholder="sk-..." />
+      </div>
+      <button class="save-api-btn" onclick="saveApiConfig()">💾 保存配置</button>
+      <div style="margin-top:9px;font-size:10px;color:var(--text-muted);line-height:1.5;font-weight:500" id="apiKeyNotice">
+        🔒 线上部署后 API Key 由服务端保管，更安全
+      </div>
+    </div>
+
+    <!-- 统计 -->
+    <div class="sidebar-section">
+      <div class="sidebar-title">📊 今日统计</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="statJD">0</div>
+          <div class="stat-label">JD 生成</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="statQ">0</div>
+          <div class="stat-label">题库生成</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="statP">0</div>
+          <div class="stat-label">画像生成</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="statTotal">0</div>
+          <div class="stat-label">累计生成</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 历史记录 -->
+    <div class="sidebar-section">
+      <div class="sidebar-title">⏱️ 最近生成</div>
+      <div class="history-list" id="historyList">
+        <div style="font-size:12px;color:var(--text-muted);text-align:center;padding:12px 0;font-weight:500">暂无记录</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 右侧内容区 -->
+  <main class="content-area">
+
+    <!-- Hero Banner -->
+    <div class="hero-banner">
+      <div class="hero-content">
+        <div class="hero-emoji">🍊</div>
+        <div class="hero-title">小橙子招聘助手</div>
+        <div class="hero-desc">新宏程集团倾力打造的AI驱动招聘平台。输入岗位信息，秒生JD、题库、人才画像，让招聘变得简单而高效。</div>
+        <div class="hero-tags">
+          <span class="hero-tag">⚡ 秒级生成</span>
+          <span class="hero-tag">🎯 精准定位</span>
+          <span class="hero-tag">📋 一键复制</span>
+          <span class="hero-tag">🤖 大模型驱动</span>
+          <span class="hero-tag">🔐 数据安全</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 首页 -->
+    <div id="module-home" class="module-panel active">
+      <div class="feature-grid">
+        <div class="feature-card" onclick="switchModule('jd', document.querySelector('[onclick*=\'jd\']'))">
+          <div class="feature-card-icon">📄</div>
+          <div class="feature-card-title">岗位JD生成</div>
+          <div class="feature-card-desc">输入岗位名称、行业、要求，AI 自动生成标准化招聘描述，适配各主流招聘平台。</div>
+          <span class="feature-card-tag">🔥 最受欢迎</span>
+        </div>
+        <div class="feature-card" onclick="switchModule('interview', document.querySelector('[onclick*=\'interview\']'))">
+          <div class="feature-card-icon">❓</div>
+          <div class="feature-card-title">面试题库</div>
+          <div class="feature-card-desc">按岗位生成分层面试题，覆盖基础技能、行为面试、情景模拟，助力结构化面试。</div>
+          <span class="feature-card-tag">📚 多维度</span>
+        </div>
+        <div class="feature-card" onclick="switchModule('portrait', document.querySelector('[onclick*=\'portrait\']'))">
+          <div class="feature-card-icon">👤</div>
+          <div class="feature-card-title">人才画像</div>
+          <div class="feature-card-desc">智能提取岗位关键能力标签，构建目标候选人画像，精准定义招聘标准。</div>
+          <span class="feature-card-tag">🎯 精准定位</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 岗位 JD 生成 ===== -->
+    <div id="module-jd" class="module-panel">
+      <div class="panel-header">
+        <div class="panel-icon">📄</div>
+        <div class="panel-title-wrap">
+          <h2>岗位 JD 生成</h2>
+          <p>填写岗位信息，AI 自动生成专业规范的职位描述</p>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">岗位名称 <span class="required">*</span></label>
+            <input type="text" class="form-input" id="jd-position" placeholder="如：高级Java工程师" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">所在行业</label>
+            <select class="form-select" id="jd-industry">
+              <option value="">请选择行业</option>
+              <option>互联网/科技</option>
+              <option>金融/银行</option>
+              <option>制造业</option>
+              <option>教育培训</option>
+              <option>医疗健康</option>
+              <option>零售/电商</option>
+              <option>房地产/建筑</option>
+              <option>咨询/服务</option>
+              <option>文化/媒体</option>
+              <option>其他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">工作年限要求</label>
+            <select class="form-select" id="jd-experience">
+              <option value="不限">经验不限</option>
+              <option>1年以下</option>
+              <option>1-3年</option>
+              <option>3-5年</option>
+              <option>5-8年</option>
+              <option>8年以上</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">学历要求</label>
+            <select class="form-select" id="jd-education">
+              <option value="不限">学历不限</option>
+              <option>大专及以上</option>
+              <option>本科及以上</option>
+              <option>硕士及以上</option>
+              <option>博士及以上</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">薪资范围</label>
+            <select class="form-select" id="jd-salary">
+              <option value="">不展示薪资</option>
+              <option>5k-10k</option>
+              <option>10k-15k</option>
+              <option>15k-20k</option>
+              <option>20k-30k</option>
+              <option>30k-50k</option>
+              <option>面议</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">工作城市</label>
+            <input type="text" class="form-input" id="jd-city" placeholder="如：上海" />
+          </div>
+          <div class="form-group full">
+            <label class="form-label">核心职责关键词</label>
+            <input type="text" class="form-input" id="jd-keywords" placeholder="如：微服务架构、高并发优化、技术团队管理（多个词用逗号分隔）" />
+          </div>
+          <div class="form-group full">
+            <label class="form-label">JD 风格</label>
+            <div class="tag-selector" id="jd-style-selector">
+              <span class="tag-option selected" onclick="toggleTag(this, 'jd-style')">📋 规范正式</span>
+              <span class="tag-option" onclick="toggleTag(this, 'jd-style')">✨ 活泼有趣</span>
+              <span class="tag-option" onclick="toggleTag(this, 'jd-style')">🚀 创业氛围</span>
+              <span class="tag-option" onclick="toggleTag(this, 'jd-style')">🏢 大厂风格</span>
+            </div>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">补充说明（可选）</label>
+            <textarea class="form-textarea" id="jd-extra" placeholder="其他特殊要求，如团队情况、项目背景、技术栈等..."></textarea>
+          </div>
+        </div>
+        <button class="generate-btn" id="jd-btn" onclick="generateJD()">
+          <div class="spinner" id="jd-spinner"></div>
+          <span id="jd-btn-text">✨ AI 一键生成 JD</span>
+        </button>
+      </div>
+
+      <div class="result-card" id="jd-result">
+        <div class="result-header">
+          <div class="result-title">
+            📄 生成结果
+            <span class="result-badge">✓ 完成</span>
+          </div>
+          <div class="result-actions">
+            <button class="action-btn" onclick="copyResult('jd-content')">📋 复制</button>
+            <button class="action-btn" onclick="downloadResult('jd-content', 'JD_')">⬇️ 下载</button>
+            <button class="action-btn primary" onclick="generateJD()">🔄 重新生成</button>
+          </div>
+        </div>
+        <div class="loading-overlay" id="jd-loading">
+          <div class="loading-ring"></div>
+          <div class="loading-text">AI 正在撰写职位描述<span class="loading-dots"></span></div>
+        </div>
+        <div class="result-body" id="jd-result-body" style="display:none">
+          <div class="result-content" id="jd-content"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 面试题库 ===== -->
+    <div id="module-interview" class="module-panel">
+      <div class="panel-header">
+        <div class="panel-icon">❓</div>
+        <div class="panel-title-wrap">
+          <h2>面试题库生成</h2>
+          <p>按岗位定制结构化面试题，多维度评估候选人</p>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">岗位名称 <span class="required">*</span></label>
+            <input type="text" class="form-input" id="q-position" placeholder="如：产品经理" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">候选人级别</label>
+            <select class="form-select" id="q-level">
+              <option value="初级">初级（0-2年）</option>
+              <option value="中级" selected>中级（2-5年）</option>
+              <option value="高级">高级（5年+）</option>
+              <option value="管理岗">管理层</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">题目类型（可多选）</label>
+            <div class="tag-selector" id="q-type-selector">
+              <span class="tag-option selected" onclick="toggleTag(this, 'q-type')">🧠 专业技能题</span>
+              <span class="tag-option selected" onclick="toggleTag(this, 'q-type')">🎭 行为面试题（STAR）</span>
+              <span class="tag-option selected" onclick="toggleTag(this, 'q-type')">🔥 情景模拟题</span>
+              <span class="tag-option" onclick="toggleTag(this, 'q-type')">💡 开放思维题</span>
+              <span class="tag-option" onclick="toggleTag(this, 'q-type')">🤝 文化价值观题</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">每类题目数量</label>
+            <select class="form-select" id="q-count">
+              <option value="3">3题（快速面试）</option>
+              <option value="5" selected>5题（标准面试）</option>
+              <option value="8">8题（深度面试）</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">面试重点方向</label>
+            <input type="text" class="form-input" id="q-focus" placeholder="如：数据分析能力、沟通协调、项目管理" />
+          </div>
+        </div>
+        <button class="generate-btn" id="q-btn" onclick="generateInterview()">
+          <div class="spinner" id="q-spinner"></div>
+          <span id="q-btn-text">✨ AI 生成面试题库</span>
+        </button>
+      </div>
+
+      <div class="result-card" id="q-result">
+        <div class="result-header">
+          <div class="result-title">
+            ❓ 面试题库
+            <span class="result-badge">✓ 完成</span>
+          </div>
+          <div class="result-actions">
+            <button class="action-btn" onclick="copyResult('q-content')">📋 复制全部</button>
+            <button class="action-btn" onclick="downloadResult('q-content', '面试题库_')">⬇️ 下载</button>
+            <button class="action-btn primary" onclick="generateInterview()">🔄 重新生成</button>
+          </div>
+        </div>
+        <div class="loading-overlay" id="q-loading">
+          <div class="loading-ring"></div>
+          <div class="loading-text">AI 正在设计面试题目<span class="loading-dots"></span></div>
+        </div>
+        <div class="result-body" id="q-result-body" style="display:none">
+          <div class="result-content" id="q-content"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 人才画像 ===== -->
+    <div id="module-portrait" class="module-panel">
+      <div class="panel-header">
+        <div class="panel-icon">👤</div>
+        <div class="panel-title-wrap">
+          <h2>人才画像生成</h2>
+          <p>构建目标候选人的全方位能力与特征画像</p>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">招聘岗位 <span class="required">*</span></label>
+            <input type="text" class="form-input" id="p-position" placeholder="如：运营总监" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">所在行业</label>
+            <select class="form-select" id="p-industry">
+              <option value="">请选择</option>
+              <option>互联网/科技</option>
+              <option>金融/银行</option>
+              <option>制造业</option>
+              <option>教育培训</option>
+              <option>医疗健康</option>
+              <option>零售/电商</option>
+              <option>其他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">汇报对象</label>
+            <input type="text" class="form-input" id="p-report" placeholder="如：向 CEO 直接汇报" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">团队规模</label>
+            <select class="form-select" id="p-team">
+              <option value="个人贡献者">个人贡献者（无下属）</option>
+              <option value="小团队（1-5人）">小团队（1-5人）</option>
+              <option value="中等团队（5-20人）">中等团队（5-20人）</option>
+              <option value="大团队（20人以上）">大团队（20人以上）</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">核心工作内容</label>
+            <textarea class="form-textarea" id="p-duties" placeholder="简述该岗位的主要职责和工作内容，AI 将据此生成精准画像..."></textarea>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">画像维度（可多选）</label>
+            <div class="tag-selector" id="p-dim-selector">
+              <span class="tag-option selected" onclick="toggleTag(this, 'p-dim')">🎓 教育背景</span>
+              <span class="tag-option selected" onclick="toggleTag(this, 'p-dim')">💼 工作经历</span>
+              <span class="tag-option selected" onclick="toggleTag(this, 'p-dim')">🔧 专业技能</span>
+              <span class="tag-option selected" onclick="toggleTag(this, 'p-dim')">🧠 核心能力</span>
+              <span class="tag-option selected" onclick="toggleTag(this, 'p-dim')">🌟 个性特质</span>
+              <span class="tag-option" onclick="toggleTag(this, 'p-dim')">❌ 负面标签</span>
+            </div>
+          </div>
+        </div>
+        <button class="generate-btn" id="p-btn" onclick="generatePortrait()">
+          <div class="spinner" id="p-spinner"></div>
+          <span id="p-btn-text">✨ AI 生成人才画像</span>
+        </button>
+      </div>
+
+      <div class="result-card" id="p-result">
+        <div class="result-header">
+          <div class="result-title">
+            👤 人才画像
+            <span class="result-badge">✓ 完成</span>
+          </div>
+          <div class="result-actions">
+            <button class="action-btn" onclick="copyResult('p-content')">📋 复制</button>
+            <button class="action-btn" onclick="downloadResult('p-content', '人才画像_')">⬇️ 下载</button>
+            <button class="action-btn primary" onclick="generatePortrait()">🔄 重新生成</button>
+          </div>
+        </div>
+        <div class="loading-overlay" id="p-loading">
+          <div class="loading-ring"></div>
+          <div class="loading-text">AI 正在构建人才画像<span class="loading-dots"></span></div>
+        </div>
+        <div class="result-body" id="p-result-body" style="display:none">
+          <div class="result-content" id="p-content"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ============================================================
+//  全局状态
+// ============================================================
+const state = {
+  apiKey: '',
+  apiProvider: 'deepseek',
+  stats: { jd: 0, q: 0, p: 0 },
+  history: []
+};
+
+// 初始化
+function init() {
+  loadConfig();
+}
+
+function loadConfig() {
+  const saved = localStorage.getItem('hrrule_config');
+  if (saved) {
+    const config = JSON.parse(saved);
+    state.apiKey = config.apiKey || '';
+    state.apiProvider = config.apiProvider || 'deepseek';
+    document.getElementById('apiKey').value = state.apiKey ? '••••••••••••••••' : '';
+    document.getElementById('apiProvider').value = state.apiProvider;
+  }
+
+  const savedStats = localStorage.getItem('hrrule_stats');
+  if (savedStats) {
+    Object.assign(state.stats, JSON.parse(savedStats));
+    updateStatsUI();
+  }
+
+  const savedHistory = localStorage.getItem('hrrule_history');
+  if (savedHistory) {
+    state.history = JSON.parse(savedHistory);
+    renderHistory();
+  }
+  
+  // 根据环境显示/隐藏 API Key 输入
+  updateApiPanelVisibility();
+}
+
+function updateApiPanelVisibility() {
+  const isVercel = isVercelEnv();
+  const apiKeyGroup = document.getElementById('apiKeyGroup');
+  const apiKeyTip = document.getElementById('apiKeyTip');
+  const apiKeyNotice = document.getElementById('apiKeyNotice');
+  
+  if (isVercel) {
+    // Vercel 环境：隐藏 API Key 输入，使用服务端配置
+    apiKeyGroup.style.display = 'none';
+    apiKeyNotice.innerHTML = '✅ 当前使用服务端 API Key，无需配置';
+  } else {
+    // 本地/静态环境：需要用户填写 API Key
+    apiKeyGroup.style.display = 'block';
+    apiKeyTip.textContent = '(本地使用需填写)';
+    apiKeyNotice.innerHTML = '🔒 API Key 仅存储在本地浏览器';
+  }
+}
+
+// ============================================================
+//  UI 交互
+// ============================================================
+function switchModule(id, el) {
+  document.querySelectorAll('.module-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('module-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+}
+
+function toggleTag(el, group) {
+  el.classList.toggle('selected');
+}
+
+function getSelectedTags(selectorId) {
+  return Array.from(document.querySelectorAll(`#${selectorId} .tag-option.selected`))
+    .map(el => el.textContent.trim().replace(/^[^\s]+\s/, ''));
+}
+
+function updateApiPlaceholder() {
+  state.apiProvider = document.getElementById('apiProvider').value;
+}
+
+function saveApiConfig() {
+  // Vercel 环境只需保存模型选择
+  if (isVercelEnv()) {
+    state.apiProvider = document.getElementById('apiProvider').value;
+    localStorage.setItem('hrrule_config', JSON.stringify({ 
+      apiKey: '', 
+      apiProvider: state.apiProvider 
+    }));
+    showToast(`已切换至 ${API_CONFIGS[state.apiProvider]?.name || state.apiProvider}`, 'success');
+    return;
+  }
+  
+  // 本地环境需要保存 API Key
+  const key = document.getElementById('apiKey').value.trim();
+  if (!key || key.includes('•')) {
+    showToast('请输入有效的 API Key', 'warning');
+    return;
+  }
+  state.apiKey = key;
+  state.apiProvider = document.getElementById('apiProvider').value;
+  localStorage.setItem('hrrule_config', JSON.stringify({ apiKey: state.apiKey, apiProvider: state.apiProvider }));
+  showToast('API 配置已保存 ✓', 'success');
+}
+
+function updateStatsUI() {
+  document.getElementById('statJD').textContent = state.stats.jd;
+  document.getElementById('statQ').textContent = state.stats.q;
+  document.getElementById('statP').textContent = state.stats.p;
+  document.getElementById('statTotal').textContent = state.stats.jd + state.stats.q + state.stats.p;
+}
+
+function incrStat(key) {
+  state.stats[key]++;
+  updateStatsUI();
+  localStorage.setItem('hrrule_stats', JSON.stringify(state.stats));
+}
+
+function addHistory(type, title, content) {
+  state.history.unshift({ type, title, content, time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) });
+  if (state.history.length > 20) state.history.pop();
+  localStorage.setItem('hrrule_history', JSON.stringify(state.history));
+  renderHistory();
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  if (!state.history.length) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--text-muted);text-align:center;padding:12px 0;font-weight:500">暂无记录</div>';
+    return;
+  }
+  list.innerHTML = state.history.slice(0, 8).map(h => `
+    <div class="history-item" onclick="showHistoryItem('${h.type}', \`${escapeBacktick(h.title)}\`, \`${escapeBacktick(h.content)}\`)">
+      <div class="history-item-title">${h.title}</div>
+      <div class="history-item-meta">${getTypeIcon(h.type)} ${h.time}</div>
+    </div>
+  `).join('');
+}
+
+function escapeBacktick(str) {
+  return str.replace(/`/g, '\\`').replace(/\$/g, '\\$');
+}
+
+function getTypeIcon(type) {
+  return { jd: '📄 JD', q: '❓ 面试题', p: '👤 画像' }[type] || '📝';
+}
+
+function showHistoryItem(type, title, content) {
+  switchModule(type, document.querySelector(`[onclick*="'${type}'"]`));
+  const resultCard = document.getElementById(`${type}-result`);
+  const resultBody = document.getElementById(`${type}-result-body`);
+  const contentEl = document.getElementById(`${type}-content`);
+  resultCard.classList.add('visible');
+  resultBody.style.display = 'block';
+  contentEl.textContent = content;
+}
+
+// ============================================================
+//  Toast 通知
+// ============================================================
+function showToast(msg, type = '') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  const icons = { success: '✓', error: '✗', warning: '⚠️' };
+  toast.innerHTML = `<span>${icons[type] || 'ℹ️'}</span> ${msg}`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// ============================================================
+//  复制 & 下载
+// ============================================================
+function copyResult(id) {
+  const text = document.getElementById(id).textContent;
+  if (!text.trim()) { showToast('没有内容可复制', 'warning'); return; }
+  navigator.clipboard.writeText(text).then(() => showToast('已复制到剪贴板 ✓', 'success'));
+}
+
+function downloadResult(id, prefix) {
+  const text = document.getElementById(id).textContent;
+  if (!text.trim()) { showToast('没有内容可下载', 'warning'); return; }
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = prefix + new Date().toLocaleDateString('zh-CN').replace(/\//g, '') + '.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('文件下载中...', 'success');
+}
+
+// ============================================================
+//  API 调用核心（流式输出）
+// ============================================================
+// API 配置（后端代理，保护 API Key）
+const API_CONFIGS = {
+  deepseek: { name: 'DeepSeek', model: 'deepseek-chat' },
+  doubao:   { name: '豆包', model: 'doubao-1.5-pro-32k' },
+  zhipu:    { name: '智谱', model: 'glm-4-flash' },
+  moonshot: { name: '月之暗面', model: 'moonshot-v1-8k' },
+  qwen:     { name: '通义千问', model: 'qwen-plus' }
+};
+
+// 检测是否在 Vercel 环境（有后端 API）
+const isVercelEnv = () => {
+  return window.location.hostname.includes('vercel.app') || 
+         window.location.hostname.includes('localhost') === false;
+};
+
+async function callAI(prompt, systemPrompt, onChunk) {
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: prompt }
+  ];
+
+  try {
+    let resp;
+    
+    // 方式1：Vercel 后端代理（推荐，API Key 安全）
+    if (isVercelEnv()) {
+      resp = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: state.apiProvider,
+          messages,
+          temperature: 0.7,
+          max_tokens: 3000
+        })
+      });
+    } 
+    // 方式2：前端直连（本地开发或静态部署，需要用户填 Key）
+    else {
+      if (!state.apiKey) {
+        showToast('请先在左侧配置 API Key', 'error');
+        return null;
+      }
+      // 前端直连各平台（API Key 会暴露，仅本地使用）
+      const directUrls = {
+        deepseek: 'https://api.deepseek.com/v1/chat/completions',
+        doubao: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
+        zhipu: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
+        moonshot: 'https://api.moonshot.cn/v1/chat/completions',
+        qwen: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions'
+      };
+      const directModels = {
+        deepseek: 'deepseek-chat',
+        doubao: 'doubao-1.5-pro-32k-250115',
+        zhipu: 'glm-4-flash',
+        moonshot: 'moonshot-v1-8k',
+        qwen: 'qwen-plus'
+      };
+      
+      resp = await fetch(directUrls[state.apiProvider], {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${state.apiKey}`
+        },
+        body: JSON.stringify({
+          model: directModels[state.apiProvider],
+          messages,
+          stream: true,
+          temperature: 0.7,
+          max_tokens: 3000
+        })
+      });
+    }
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.error?.message || err.message || `HTTP ${resp.status}`);
+    }
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let full = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      const lines = chunk.split('\n').filter(l => l.startsWith('data:'));
+      for (const line of lines) {
+        const data = line.slice(5).trim();
+        if (data === '[DONE]') break;
+        try {
+          const json = JSON.parse(data);
+          const delta = json.choices?.[0]?.delta?.content || '';
+          if (delta) { full += delta; onChunk(full); }
+        } catch (_) {}
+      }
+    }
+    return full;
+  } catch (err) {
+    throw err;
+  }
+}
+
+// ============================================================
+//  生成状态管理
+// ============================================================
+function setGenerating(module, isGenerating) {
+  const btn = document.getElementById(`${module}-btn`);
+  const spinner = document.getElementById(`${module}-spinner`);
+  const btnText = document.getElementById(`${module}-btn-text`);
+  btn.disabled = isGenerating;
+  spinner.style.display = isGenerating ? 'block' : 'none';
+  btnText.textContent = isGenerating ? 'AI 生成中...' : `✨ ${getBtnLabel(module)}`;
+}
+
+function getBtnLabel(m) {
+  return { jd: 'AI 一键生成 JD', q: 'AI 生成面试题库', p: 'AI 生成人才画像' }[m];
+}
+
+function showResultLoading(module) {
+  const card = document.getElementById(`${module}-result`);
+  const loading = document.getElementById(`${module}-loading`);
+  const body = document.getElementById(`${module}-result-body`);
+  card.classList.add('visible');
+  loading.classList.add('visible');
+  body.style.display = 'none';
+}
+
+function showResultContent(module) {
+  document.getElementById(`${module}-loading`).classList.remove('visible');
+  document.getElementById(`${module}-result-body`).style.display = 'block';
+}
+
+// ============================================================
+//  岗位 JD 生成
+// ============================================================
+async function generateJD() {
+  const position = document.getElementById('jd-position').value.trim();
+  if (!position) { showToast('请填写岗位名称', 'warning'); return; }
+
+  const data = {
+    position,
+    industry: document.getElementById('jd-industry').value || '不限',
+    experience: document.getElementById('jd-experience').value,
+    education: document.getElementById('jd-education').value,
+    salary: document.getElementById('jd-salary').value || '不展示',
+    city: document.getElementById('jd-city').value || '不限',
+    keywords: document.getElementById('jd-keywords').value,
+    style: getSelectedTags('jd-style-selector')[0] || '规范正式',
+    extra: document.getElementById('jd-extra').value
+  };
+
+  const systemPrompt = `你是一位资深人力资源专家，擅长撰写专业、吸引人的招聘职位描述（JD）。
+你的JD结构清晰、语言专业、重点突出，能准确传达岗位价值和公司文化。`;
+
+  const prompt = `请为以下岗位生成一份完整的招聘JD：
+
+岗位名称：${data.position}
+所在行业：${data.industry}
+工作年限：${data.experience}
+学历要求：${data.education}
+薪资范围：${data.salary}
+工作城市：${data.city}
+核心关键词：${data.keywords || '无特殊要求'}
+JD风格：${data.style}
+补充说明：${data.extra || '无'}
+
+请按以下结构输出：
+【职位名称】
+【岗位职责】（6-8条，具体可量化）
+【任职要求】（5-7条，包含必须和加分项）
+【我们提供】（福利待遇，3-5条）
+【关于我们】（公司简介，2-3句话，展示吸引力）
+
+要求：
+- 语言${data.style === '活泼有趣' ? '活泼有趣，带有感情，吸引求职者' : data.style === '创业氛围' ? '充满激情，强调成长机会和团队文化' : data.style === '大厂风格' ? '规范严谨，体现专业性和系统性' : '规范正式，专业严谨'}
+- 职责描述用动词开头，体现岗位价值
+- 要求分为"必须具备"和"优先考虑"两档`;
+
+  setGenerating('jd', true);
+  showResultLoading('jd');
+
+  try {
+    const content = document.getElementById('jd-content');
+    content.textContent = '';
+    showResultContent('jd');
+
+    await callAI(prompt, systemPrompt, (text) => {
+      content.textContent = text;
+    });
+
+    incrStat('jd');
+    addHistory('jd', `${position} - JD`, content.textContent);
+    showToast('JD 生成完成 🎉', 'success');
+  } catch (err) {
+    showResultContent('jd');
+    document.getElementById('jd-content').textContent = `⚠️ 生成失败：${err.message}\n\n请检查 API Key 是否正确，或稍后重试。`;
+    showToast(`生成失败：${err.message}`, 'error');
+  } finally {
+    setGenerating('jd', false);
+  }
+}
+
+// ============================================================
+//  面试题库生成
+// ============================================================
+async function generateInterview() {
+  const position = document.getElementById('q-position').value.trim();
+  if (!position) { showToast('请填写岗位名称', 'warning'); return; }
+
+  const data = {
+    position,
+    level: document.getElementById('q-level').value,
+    types: getSelectedTags('q-type-selector'),
+    count: document.getElementById('q-count').value,
+    focus: document.getElementById('q-focus').value
+  };
+
+  if (!data.types.length) { showToast('请至少选择一种题目类型', 'warning'); return; }
+
+  const systemPrompt = `你是一位拥有10年以上招聘经验的人力资源专家和面试官，
+擅长设计结构化面试题目，能针对不同岗位、层级设计高质量、有深度的面试题。`;
+
+  const prompt = `请为"${data.position}"（${data.level}）生成一套结构化面试题库。
+
+需要包含的题目类型：${data.types.join('、')}
+每类题目数量：${data.count}题
+重点考察方向：${data.focus || '综合能力'}
+
+输出格式要求：
+- 每种类型单独分区，有清晰的标题
+- 每道题编号，如 Q1、Q2...
+- 行为面试题请标注考察要点
+- 情景题请设计具体的情景描述
+- 最后提供"面试评分参考"（3-5条评分维度）
+
+题目要求：
+- 题目具体、可操作，避免过于抽象
+- 难度匹配${data.level}水平
+- 专业性与实战性兼顾`;
+
+  setGenerating('q', true);
+  showResultLoading('q');
+
+  try {
+    const content = document.getElementById('q-content');
+    content.textContent = '';
+    showResultContent('q');
+
+    await callAI(prompt, systemPrompt, (text) => {
+      content.textContent = text;
+    });
+
+    incrStat('q');
+    addHistory('q', `${position} 面试题库（${data.level}）`, content.textContent);
+    showToast('面试题库生成完成 🎉', 'success');
+  } catch (err) {
+    showResultContent('q');
+    document.getElementById('q-content').textContent = `⚠️ 生成失败：${err.message}\n\n请检查 API Key 是否正确，或稍后重试。`;
+    showToast(`生成失败：${err.message}`, 'error');
+  } finally {
+    setGenerating('q', false);
+  }
+}
+
+// ============================================================
+//  人才画像生成
+// ============================================================
+async function generatePortrait() {
+  const position = document.getElementById('p-position').value.trim();
+  if (!position) { showToast('请填写招聘岗位', 'warning'); return; }
+
+  const data = {
+    position,
+    industry: document.getElementById('p-industry').value || '不限',
+    report: document.getElementById('p-report').value || '待定',
+    team: document.getElementById('p-team').value,
+    duties: document.getElementById('p-duties').value || '未填写',
+    dims: getSelectedTags('p-dim-selector')
+  };
+
+  if (!data.dims.length) { showToast('请至少选择一个画像维度', 'warning'); return; }
+
+  const systemPrompt = `你是一位资深猎头顾问和人才评估专家，
+擅长构建精准的岗位人才画像，帮助企业精准定位理想候选人。`;
+
+  const prompt = `请为以下岗位构建一份详细的人才画像：
+
+招聘岗位：${data.position}
+所在行业：${data.industry}
+汇报对象：${data.report}
+管理规模：${data.team}
+主要职责：${data.duties}
+需要的画像维度：${data.dims.join('、')}
+
+输出要求：
+- 每个维度单独成节，有图标和标题
+- 内容具体，可量化，避免泛泛而谈
+- 区分"必须具备"和"加分项"
+- 最后给出"人才识别关键词"（10-15个标签词）
+- 如包含"负面标签"，请列出应该规避的候选人特征
+
+请以专业猎头的视角，描述真正符合这个岗位的理想候选人画像。`;
+
+  setGenerating('p', true);
+  showResultLoading('p');
+
+  try {
+    const content = document.getElementById('p-content');
+    content.textContent = '';
+    showResultContent('p');
+
+    await callAI(prompt, systemPrompt, (text) => {
+      content.textContent = text;
+    });
+
+    incrStat('p');
+    addHistory('p', `${position} 人才画像`, content.textContent);
+    showToast('人才画像生成完成 🎉', 'success');
+  } catch (err) {
+    showResultContent('p');
+    document.getElementById('p-content').textContent = `⚠️ 生成失败：${err.message}\n\n请检查 API Key 是否正确，或稍后重试。`;
+    showToast(`生成失败：${err.message}`, 'error');
+  } finally {
+    setGenerating('p', false);
+  }
+}
+
+// 启动
+init();
+</script>
+</body>
+</html>
